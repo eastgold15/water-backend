@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { CommonEntity } from '~/common/entity/common.entity'
-import { DeviceBase } from '~/modules/device/entities/device.entity'
+import { DeviceBase } from '~/modules/device/entities/device_base.entity'
 import { Organization } from '~/modules/organization/entities/organization.entity'
 
 @Entity({ name: 'location_area' })
@@ -33,6 +33,6 @@ export class Area extends CommonEntity {
   @JoinColumn({ name: 'organization_id' })
   organization: Organization
 
-  @OneToMany(() => DeviceBase, device => device.area)
+  @OneToMany(() => DeviceBase, device => device.installArea)
   devices: DeviceBase[]
 }

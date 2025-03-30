@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { CommonEntity } from '~/common/entity/common.entity'
-import { DeviceBase } from '~/modules/device/entities/device.entity'
+import { DeviceBase } from '~/modules/device/entities/device_base.entity'
 import { WorkOrderRecordEntity } from './work-order-record.entity'
 
 @Entity({ name: 'work_order' })
