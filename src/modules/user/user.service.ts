@@ -20,10 +20,11 @@ import { QQService } from '~/shared/helper/qq.service'
 import { md5, randomValue } from '~/utils'
 
 import { AccessTokenEntity } from '../auth/entities/access-token.entity'
+import { OrganizationEntity } from '../organization/entities/organization.entity'
 import { DeptEntity } from '../system/dept/dept.entity'
 import { ParamConfigService } from '../system/param-config/param-config.service'
-import { RoleEntity } from '../system/role/role.entity'
 
+import { RoleEntity } from '../system/role/role.entity'
 import { UserStatus } from './constant'
 import { PasswordUpdateDto } from './dto/password.dto'
 import { UserDto, UserQueryDto, UserUpdateDto } from './dto/user.dto'
@@ -42,7 +43,7 @@ export class UserService {
     @InjectEntityManager() private entityManager: EntityManager,
     private readonly paramConfigService: ParamConfigService,
     private readonly qqService: QQService,
-  ) {}
+  ) { }
 
   async findUserById(id: number): Promise<UserEntity | undefined> {
     return this.userRepository
@@ -146,6 +147,7 @@ export class UserService {
     password,
     roleIds,
     deptId,
+    organizationId,
     ...data
   }: UserDto): Promise<void> {
     const exists = await this.userRepository.findOneBy({
@@ -173,6 +175,7 @@ export class UserService {
         psalt: salt,
         roles: await this.roleRepository.findBy({ id: In(roleIds) }),
         dept: await DeptEntity.findOneBy({ id: deptId }),
+        organization: await OrganizationEntity.findOneBy({ id: organizationId }),
       })
 
       const result = await manager.save(u)
@@ -185,7 +188,7 @@ export class UserService {
    */
   async update(
     id: number,
-    { password, deptId, roleIds, status, ...data }: UserUpdateDto,
+    { password, deptId, roleIds, organizationId, status, ...data }: UserUpdateDto,
   ): Promise<void> {
     await this.entityManager.transaction(async (manager) => {
       if (password)
@@ -200,6 +203,7 @@ export class UserService {
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.roles', 'roles')
         .leftJoinAndSelect('user.dept', 'dept')
+        .leftJoinAndSelect('user.organization', 'organization')
         .where('user.id = :id', { id })
         .getOne()
       if (roleIds) {
@@ -215,6 +219,13 @@ export class UserService {
           .relation(UserEntity, 'dept')
           .of(id)
           .set(deptId)
+      }
+      if (organizationId) {
+        await manager
+          .createQueryBuilder()
+          .relation(UserEntity, 'organization')
+          .of(id)
+          .set(organizationId)
       }
 
       if (status === 0) {
@@ -233,6 +244,7 @@ export class UserService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'roles')
       .leftJoinAndSelect('user.dept', 'dept')
+      .leftJoinAndSelect('user.organization', 'organization')
       .where('user.id = :id', { id })
       .getOne()
 
@@ -279,6 +291,7 @@ export class UserService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.dept', 'dept')
       .leftJoinAndSelect('user.roles', 'role')
+      .leftJoinAndSelect('user.organization', 'organization')
       // .where('user.id NOT IN (:...ids)', { ids: [rootUserId, uid] })
       .where({
         ...(username ? { username: Like(`%${username}%`) } : null),

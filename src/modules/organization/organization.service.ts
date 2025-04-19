@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { PagerDto } from '~/common/dto/pager.dto'
+import { paginate } from '~/helper/paginate'
+import { Pagination } from '~/helper/paginate/pagination'
+import { CreateOrganizationDto } from './dto/create-organization.dto'
+import { UpdateOrganizationDto } from './dto/update-organization.dto'
+import { OrganizationEntity } from './entities/organization.entity'
 
 @Injectable()
 export class OrganizationService {
-  create(createOrganizationDto: CreateOrganizationDto) {
-    return 'This action adds a new organization';
+  constructor(
+    @InjectRepository(OrganizationEntity)
+    private orgRepo: Repository<OrganizationEntity>,
+  ) { }
+
+  async create(createOrganizationDto: CreateOrganizationDto) {
+    const org = this.orgRepo.create(createOrganizationDto)
+    return await this.orgRepo.save(org)
   }
 
-  findAll() {
-    return `This action returns all organization`;
+  async findAll({ page, pageSize }: PagerDto): Promise<Pagination<OrganizationEntity>> {
+    return await paginate(this.orgRepo, { page, pageSize }, {
+      order: { id: 'DESC' },
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} organization`;
+  async findOne(id: number) {
+    const org = await this.orgRepo.findOne({
+      where: { id },
+      relations: ['users', 'areas'],
+    })
+    if (!org) {
+      throw new NotFoundException('组织不存在')
+    }
+    return org
   }
 
-  update(id: number, updateOrganizationDto: UpdateOrganizationDto) {
-    return `This action updates a #${id} organization`;
+  async update(id: number, updateOrganizationDto: UpdateOrganizationDto) {
+    const result = await this.orgRepo.update(id, updateOrganizationDto)
+    if (result.affected === 0) {
+      throw new NotFoundException('组织不存在')
+    }
+    return await this.findOne(id)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} organization`;
+  async remove(id: number) {
+    const org = await this.findOne(id)
+    return await this.orgRepo.remove(org)
   }
 }

@@ -16,7 +16,7 @@ import { AccessTokenEntity } from '~/modules/auth/entities/access-token.entity'
 
 import { DeptEntity } from '~/modules/system/dept/dept.entity'
 import { RoleEntity } from '~/modules/system/role/role.entity'
-import { Organization } from '../organization/entities/organization.entity'
+import { OrganizationEntity } from '../organization/entities/organization.entity'
 
 @Entity({ name: 'sys_user' })
 export class UserEntity extends CommonEntity {
@@ -60,9 +60,9 @@ export class UserEntity extends CommonEntity {
   status: number
 
   // 所属组织/机构
-  @ManyToOne(() => Organization, org => org.users)
+  @ManyToOne(() => OrganizationEntity, org => org.users)
   @JoinColumn({ name: 'organization_id' })
-  organization: Organization
+  organization: OrganizationEntity
 
   @ManyToMany(() => RoleEntity, role => role.users)
   @JoinTable({

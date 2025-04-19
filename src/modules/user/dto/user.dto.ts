@@ -81,9 +81,15 @@ export class UserDto {
   @ApiProperty({ description: '状态' })
   @IsIn([0, 1])
   status: number
+
+  @ApiProperty({ description: '所属组织' })
+  @ApiProperty({ description: '所属组织ID', type: Number })
+  @Type(() => Number)
+  @IsInt()
+  organizationId: number
 }
 
-export class UserUpdateDto extends PartialType(UserDto) {}
+export class UserUpdateDto extends PartialType(UserDto) { }
 
 export class UserQueryDto extends IntersectionType(PagerDto<UserDto>, PartialType(UserDto)) {
   @ApiProperty({ description: '归属大区', example: 1, required: false })

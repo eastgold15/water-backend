@@ -42,29 +42,6 @@ export class WorkOrderService {
     return paginate<WorkOrderEntity>(queryBuilder, { page, pageSize })
   }
 
-  // // 带参数模模糊查询  不带参数查询所有
-  // async findAll(dto: QueryWorkOrderDto) {
-  //   const query = this.workOrderRepository.createQueryBuilder('order').leftJoinAndSelect('order.records', 'record')
-
-  //   // if (dto.orderId) {
-  //   //   query.where('order.orderId = :orderId', { orderId: dto.orderId })
-  //   // }
-  //   // if (dto.orderStatus) {
-  //   //   query.andWhere('order.orderStatus = :orderStatus', { orderStatus: dto.orderStatus })
-  //   // }
-  //   // if (dto.faultLocation) {
-  //   //   query.andWhere('order.faultLocation LIKE :faultLocation', {
-  //   //     faultLocation: `%${dto.faultLocation}%`
-  //   //   })
-  //   // }
-  //   // 写法二
-  //   query.where(dto.orderId ? 'order.orderId = :orderId' : '1=1', { orderId: dto.orderId })
-  //     .andWhere(dto.faultLocation ? 'order.faultLocation Like :faultLocation' : '1=1', { faultLocation: `${dto.faultLocation}%` })
-  //     .andWhere(dto.orderStatus ? 'order.orderStatus = :orderStatus' : '1=1', { orderStatus: dto.orderStatus })
-
-  //   return query.getMany()
-  // }
-
   async createRepairOrder(dto: CreateWorkOrderDto, userId: number) {
     const orderNo = `WO${Date.now()}`
 
@@ -74,9 +51,7 @@ export class WorkOrderService {
       orderId: orderNo,
       orderStatus: 0, // 待处理
     })
-
     const savedOrder = await this.workOrderRepository.save(workOrder)
-
     // 创建上报记录
     await this.recordRepository.save({
       type: 'report',
@@ -118,7 +93,6 @@ export class WorkOrderService {
       updatedAt: new Date(),
     })
 
-    
     // 创建审核记录
     return this.recordRepository.save({
       type: recordType,
@@ -134,9 +108,9 @@ export class WorkOrderService {
       relations: ['records'], // 关联查询记录
       order: {
         records: {
-          createdAt: 'DESC' // 按创建时间倒序
-        }
-      }
-    });
+          createdAt: 'DESC', // 按创建时间倒序
+        },
+      },
+    })
   }
 }

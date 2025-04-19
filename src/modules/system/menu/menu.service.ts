@@ -10,13 +10,15 @@ import { BusinessException } from '~/common/exceptions/biz.exception'
 import { RedisKeys } from '~/constants/cache.constant'
 import { ErrorEnum } from '~/constants/error-code.constant'
 import { genAuthPermKey, genAuthTokenKey } from '~/helper/genRedisKey'
+import { paginate } from '~/helper/paginate'
+import { Pagination } from '~/helper/paginate/pagination'
+
 import { SseService } from '~/modules/sse/sse.service'
+
 import { MenuEntity } from '~/modules/system/menu/menu.entity'
 
 import { deleteEmptyChildren, generatorMenu, generatorRouters } from '~/utils'
-
 import { RoleService } from '../role/role.service'
-
 import { MenuDto, MenuQueryDto, MenuUpdateDto } from './menu.dto'
 
 @Injectable()
@@ -27,7 +29,7 @@ export class MenuService {
     private menuRepository: Repository<MenuEntity>,
     private roleService: RoleService,
     private sseService: SseService,
-  ) {}
+  ) { }
 
   /**
    * 获取所有菜单以及权限
@@ -38,27 +40,74 @@ export class MenuService {
     permission,
     component,
     status,
-  }: MenuQueryDto): Promise<MenuEntity[]> {
-    const menus = await this.menuRepository.find({
-      where: {
+    page = 1,
+    pageSize = 10,
+  }: MenuQueryDto): Promise<Pagination<MenuEntity>> {
+    const queryBuilder = this.menuRepository.createQueryBuilder('menu')
+      .where({
         ...(name && { name: Like(`%${name}%`) }),
         ...(path && { path: Like(`%${path}%`) }),
         ...(permission && { permission: Like(`%${permission}%`) }),
         ...(component && { component: Like(`%${component}%`) }),
         ...(!isNil(status) ? { status } : null),
-      },
-      order: { orderNo: 'ASC' },
+      })
+      .orderBy('menu.order_no', 'ASC')
+
+    const paginationResult = await paginate<MenuEntity>(queryBuilder, {
+      page,
+      pageSize,
     })
-    const menuList = generatorMenu(menus)
+
+    const menuList = generatorMenu(paginationResult.items)
 
     if (!isEmpty(menuList)) {
       deleteEmptyChildren(menuList)
-      return menuList
+      return {
+        ...paginationResult,
+        items: menuList,
+      }
     }
-    // 如果生产树形结构为空，则返回原始菜单列表
 
-    return menus
+    return {
+      ...paginationResult,
+      items: paginationResult.items,
+    }
   }
+
+  /**
+   * 获取所有菜单以及权限
+   */
+  // async list({
+  //   name,
+  //   path,
+  //   permission,
+  //   component,
+  //   status,
+  //   page = 1,
+  //   pageSize = 10,
+  // }: MenuQueryDto): Promise<MenuEntity[]> {
+  //   const menus = await this.menuRepository.find({
+  //     where: {
+  //       ...(name && { name: Like(`%${name}%`) }),
+  //       ...(path && { path: Like(`%${path}%`) }),
+  //       ...(permission && { permission: Like(`%${permission}%`) }),
+  //       ...(component && { component: Like(`%${component}%`) }),
+  //       ...(!isNil(status) ? { status } : null),
+  //     },
+  //     order: { orderNo: 'ASC' },
+  //   })
+  //   const menuList = generatorMenu(menus)
+
+  //   if (!isEmpty(menuList)) {
+  //     deleteEmptyChildren(menuList)
+  //     return menuList
+  //   }
+  //   // 如果生产树形结构为空，则返回原始菜单列表
+
+  //   return paginate(menus, { page, pageSize }, {})
+
+  //   return menus
+  // }
 
   async create(menu: MenuDto): Promise<void> {
     const result = await this.menuRepository.save(menu)

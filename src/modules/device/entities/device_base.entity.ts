@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { CommonEntity } from '~/common/entity/common.entity'
-import { Area } from '~/modules/area/entities/area.entity'
+import { AreaEntity } from '~/modules/area/entities/area.entity'
 import { PressureMeterMetric } from './pressure_meter_metric.entity'
 import { WaterMeterMetric } from './water_meter_metric.entity'
 
@@ -18,9 +18,9 @@ export class DeviceBase extends CommonEntity {
   deviceType: number // 1:水表 2:压力表 3:其他
 
   // 安装区域
-  @ManyToOne(() => Area, area => area.devices)
+  @ManyToOne(() => AreaEntity, area => area.devices)
   @JoinColumn({ name: 'area_id' })
-  installArea: Area
+  installArea: AreaEntity
 
   // 生产厂家
   @Column({ type: 'varchar', comment: '生产厂家' })

@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Min,
@@ -102,6 +103,17 @@ export class MenuDto extends OperatorDto {
   component?: string
 }
 
-export class MenuUpdateDto extends PartialType(MenuDto) {}
+export class MenuUpdateDto extends PartialType(MenuDto) { }
 
-export class MenuQueryDto extends PartialType(MenuDto) {}
+export class MenuQueryDto extends PartialType(MenuDto) {
+  @ApiProperty({ description: '页数' })
+  @IsOptional()
+  @IsNumber()
+
+  page?: number
+
+  @ApiProperty({ description: '每页数量' })
+  @IsOptional()
+  @IsNumber()
+  pageSize?: number
+}

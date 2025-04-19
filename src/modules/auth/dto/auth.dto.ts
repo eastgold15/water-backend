@@ -5,7 +5,7 @@ import { IsString, Matches, MaxLength, MinLength } from 'class-validator'
 export class LoginDto {
   @ApiProperty({ description: '手机号/邮箱' })
   @IsString()
-  @MinLength(4)
+  @MinLength(2)
   username: string
 
   @ApiProperty({ description: '密码', example: 'a123456' })
@@ -23,6 +23,12 @@ export class LoginDto {
   @MinLength(4)
   @MaxLength(4)
   verifyCode: string
+}
+
+export class RefreshTokenDto {
+  @ApiProperty({ description: '刷新令牌' })
+  @IsString()
+  refreshToken: string
 }
 
 export class RegisterDto {

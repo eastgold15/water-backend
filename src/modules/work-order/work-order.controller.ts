@@ -19,9 +19,7 @@ import { WorkOrderService } from './work-order.service'
 @Controller('work-orders')
 export class WorkOrderController {
   constructor(private readonly workOrderService: WorkOrderService) { }
-
   // 获取所有的工单
-
   @ApiOperation({ summary: '获取所有维修工单' })
   @ApiResult({ type: [WorkOrderEntity] })
   @Get()
