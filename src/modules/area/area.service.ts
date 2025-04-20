@@ -14,6 +14,7 @@ export class AreaService {
 
   async create(createAreaDto: CreateAreaDto) {
     const area = this.areaRepository.create(createAreaDto)
+    console.log(createAreaDto) // Log the createAreaDt
     if (createAreaDto.parentId) {
       area.parent = await this.areaRepository.findOneBy({ id: createAreaDto.parentId })
     }
