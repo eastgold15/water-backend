@@ -1,6 +1,5 @@
 services:
 
-
   app:
     build: .
     container_name: nest-water-prod
@@ -18,10 +17,7 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - PROJECT_DIR= ${PROJECT_DIR}
     command: >
-      sh -c "
-      pnpm migration:run &&
-      pm2-runtime ecosystem.config.js
-      "
+      sh -c " ./wait-for $DB_HOST:$DB_PORT && pnpm migration:run && pm2-runtime ecosystem.config.js "
     depends_on:
       - mysql1
       - redis1
@@ -36,6 +32,8 @@ services:
       - .env
       - .env.production
     environment:
+      - MYSQL_HOST=${DB_HOST}
+      - MYSQL_PORT=${DB_PORT}
       - MYSQL_DATABASE=${DB_DATABASE}
       - MYSQL_USERNAME=${DB_USERNAME}
       - MYSQL_PASSWORD=${DB_PASSWORD}
