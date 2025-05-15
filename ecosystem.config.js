@@ -5,7 +5,7 @@ const cpuLen = cpus().length
 module.exports = {
   apps: [
     {
-      name: 'nest-admin',
+      name: 'nest-water',
       script: './dist/main.js',
       autorestart: true,
       exec_mode: 'cluster',

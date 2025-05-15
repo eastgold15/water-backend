@@ -1,21 +1,13 @@
-
 services:
-  mysql:
+  mysql_water:
     image: mysql:latest
-    container_name: nest-admin-mysql
+    container_name: mysql-water-dev
     restart: always
     env_file:
       - .env
-      - .env.production
-    environment:
-      - MYSQL_HOST=${DB_HOST}
-      - MYSQL_PORT=${DB_PORT}
-      - MYSQL_DATABASE=${DB_DATABASE}
-      - MYSQL_USERNAME=${DB_USERNAME}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - .env.development
     ports:
-      - '${DB_PORT}:3306'
+      - '${DB_PORT:-3304}:3306'
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci # 设置utf8字符集
     volumes:
       - ./__data/mysql/:/var/lib/mysql/ # ./__data/mysql/ 路径可以替换成自己的路径
@@ -23,19 +15,37 @@ services:
     networks:
       - nest_admin_net
 
-  redis:
+  redis_water:
     image: redis:alpine
-    container_name: nest-admin-redis
+    container_name: radis-water-dev
     restart: always
     env_file:
       - .env
-      - .env.production
+      - .env.development
     ports:
-      - '${REDIS_PORT}:6379'
+      - '${REDIS_PORT:-6378}:6379'
     command: >
-      --requirepass ${REDIS_PASSWORD}
+      --requirepass ${REDIS_PASSWORD:-123456}
     networks:
       - nest_admin_net
+
+  end_water:
+    build: .
+    container_name: nest_admin_end_water
+    restart: always
+    env_file:
+      - .env
+      - .env.development
+    ports:
+      - '${APP_PORT}:3000'
+    # command: [ "pm2", "start", "ecosystem.config.js" ]
+    command: ENTRYPOINT ["sh", "-c", "./wait-for \"$DB_HOST:$DB_PORT\" -- && exec \"$@\"", "--"]
+    networks:
+      - nest_admin_net
+    depends_on:
+      - redis_water
+      - mysql_water
+
 networks:
   nest_admin_net:
-    name: nest_admin_net
+    driver: bridge
