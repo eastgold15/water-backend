@@ -9,8 +9,8 @@
     "url": "https://github.com/eastgold15/water-backend"
   },
   "engines": {
-    "node": ">=16.20.2",
-    "pnpm": ">=8"
+    "node": "22.16.0",
+    "pnpm": ">=9.1.0"
   },
   "scripts": {
     "postinstall": "npm run gen-env-types",
