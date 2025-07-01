@@ -29,22 +29,22 @@ services:
     networks:
       - nest_admin_net
 
-  end_water:
-    build: .
-    container_name: nest_admin_end_water
-    restart: always
-    env_file:
-      - .env
-      - .env.development
-    ports:
-      - '${APP_PORT}:3000'
-    # command: [ "pm2", "start", "ecosystem.config.js" ]
-    command: ENTRYPOINT ["sh", "-c", "./wait-for \"$DB_HOST:$DB_PORT\" -- && exec \"$@\"", "--"]
-    networks:
-      - nest_admin_net
-    depends_on:
-      - redis_water
-      - mysql_water
+  # end_water:
+  #   build: .
+  #   container_name: nest_admin_end_water
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #     - .env.development
+  #   ports:
+  #     - '${APP_PORT}:3000'
+  #   # command: [ "pm2", "start", "ecosystem.config.js" ]
+  #   command: ENTRYPOINT ["sh", "-c", "./wait-for \"$DB_HOST:$DB_PORT\" -- && exec \"$@\"", "--"]
+  #   networks:
+  #     - nest_admin_net
+  #   depends_on:
+  #     - redis_water
+  #     - mysql_water
 
 networks:
   nest_admin_net:
