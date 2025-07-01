@@ -14,7 +14,6 @@ import { WorkOrderEntity } from './entities/work-order.entity'
 import { WorkOrderService } from './work-order.service'
 
 // 不需要认证
-
 @ApiTags('扫码报修-维修工单')
 @Controller('work-orders')
 export class WorkOrderController {

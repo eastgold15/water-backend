@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { TreeRepository } from 'typeorm'
+import { Like, TreeRepository } from 'typeorm'
+import { paginate } from '~/helper/paginate'
 import { CreateAreaDto } from './dto/create-area.dto'
 import { UpdateAreaDto } from './dto/update-area.dto'
 import { AreaEntity } from './entities/area.entity'
@@ -21,8 +22,21 @@ export class AreaService {
     return this.areaRepository.save(area)
   }
 
-  async findAll() {
-    return this.areaRepository.findTrees()
+  async findAll({ areaCode, areaName, page = 1, pageSize = 10 }: any) {
+    const queryBuilder = this.areaRepository.createQueryBuilder('area').where({
+      ...(areaCode && { areaCode: Like(`%${areaCode}%`) }),
+      ...(areaName && { areaName: Like(`%${areaName}%`) }),
+    }).orderBy({ id: 'ASC' })
+
+    const pagination = await paginate<AreaEntity>(queryBuilder, { page, pageSize })
+
+    return pagination
+  }
+
+  async findByPage() {
+    return this.areaRepository.find({
+      relations: ['parent', 'children', 'organization', 'devices'],
+    })
   }
 
   async findOne(id: number) {

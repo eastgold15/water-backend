@@ -8,7 +8,6 @@ import { WaterMeterMetric } from '../entities/water_meter_metric.entity'
 @Injectable()
 export class DeviceMockService implements OnModuleDestroy {
   private activeMocks = new Map<number, { timer: NodeJS.Timeout, endTime: number }>()
-
   constructor(
     @InjectRepository(WaterMeterMetric)
     private waterMeterRepo: Repository<WaterMeterMetric>,
@@ -28,15 +27,12 @@ export class DeviceMockService implements OnModuleDestroy {
             where: { id: deviceId },
             select: ['id', 'deviceType'],
           })
-
           if (!device) {
             console.warn(`设备 ${deviceId} 不存在`)
             return
           }
-
           // 初始生成数据
           await this.generateDataByType(deviceId, device.deviceType)
-
           // 启动定时模拟
           const timer = setInterval(async () => {
             try {
@@ -45,30 +41,35 @@ export class DeviceMockService implements OnModuleDestroy {
                 return
               }
               await this.generateDataByType(deviceId, device.deviceType)
-            } catch (err) {
+            }
+            catch (err) {
               console.error(`设备 ${deviceId} 定时模拟出错:`, err)
             }
           }, 10000)
-
           this.activeMocks.set(deviceId, { timer, endTime })
-        } catch (err) {
+        }
+        catch (err) {
           console.error(`设备 ${deviceId} 模拟初始化失败:`, err)
         }
       }))
-    } catch (err) {
+    }
+    catch (err) {
       console.error('模拟数据生成失败:', err)
       throw err
     }
   }
 
+  // 根据设备类型模拟数据
   private async generateDataByType(deviceId: number, deviceType: number) {
     if (deviceType === 1) {
       await this.generateFlowData(deviceId)
-    } else if (deviceType === 2) {
+    }
+    else if (deviceType === 2) {
       await this.generatePressureMeterData(deviceId)
     }
   }
 
+  // 停止模拟
   private stopMockForDevice(deviceId: number) {
     const mockInfo = this.activeMocks.get(deviceId)
     if (mockInfo) {
@@ -92,7 +93,7 @@ export class DeviceMockService implements OnModuleDestroy {
       flowRate: `${baseFlow.toFixed(2)}`,
       totalFlow: `${(baseFlow * 0.1).toFixed(2)}`,
       signalStrength: `${signalStrength.toFixed(2)}%`,
-      uploadTime: new Date()
+      uploadTime: new Date(),
     })
   }
 
@@ -107,7 +108,7 @@ export class DeviceMockService implements OnModuleDestroy {
       pressure: `${basePressure.toFixed(2)}`,
       longitude,
       latitude,
-      uploadTime: new Date()
+      uploadTime: new Date(),
     })
   }
 

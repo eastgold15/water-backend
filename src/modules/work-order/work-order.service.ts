@@ -38,7 +38,6 @@ export class WorkOrderService {
         ...(data.faultLocation ? { faultLocation: Like(`%${data.faultLocation}%`) } : null),
         ...(data.orderStatus ? { orderStatus: data.orderStatus } : null),
       })
-
     return paginate<WorkOrderEntity>(queryBuilder, { page, pageSize })
   }
 

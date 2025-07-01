@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger'
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class CreateAreaDto {
@@ -39,4 +39,16 @@ export class CreateAreaDto {
   @IsOptional()
   @IsNumber()
   organizationId?: number
+}
+
+export class AreaByPageDto extends PartialType (CreateAreaDto) {
+  @ApiProperty({ description: '页数' })
+  @IsOptional()
+  @IsNumber()
+  page?: number
+
+  @ApiProperty({ description: '每页数量' })
+  @IsOptional()
+  @IsNumber()
+  pageSize?: number
 }

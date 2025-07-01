@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AreaService } from './area.service'
-import { CreateAreaDto } from './dto/create-area.dto'
+import { AreaByPageDto, CreateAreaDto } from './dto/create-area.dto'
 import { UpdateAreaDto } from './dto/update-area.dto'
 import { AreaEntity } from './entities/area.entity'
 
@@ -20,11 +20,12 @@ export class AreaController {
   }
 
   @Get()
-  @ApiOperation({ summary: '获取区域树', description: '获取完整的区域树形结构' })
+  @ApiOperation({ summary: '分页获取区域树', description: '获取完整的区域树形结构' })
   @ApiResponse({ status: 200, type: [AreaEntity], description: '查询成功' })
-  findAll() {
-    return this.areaService.findAll()
+  findAllByPage(@Query() dto: AreaByPageDto) {
+    return this.areaService.findAll(dto)
   }
+
 
   @Get(':id')
   @ApiOperation({ summary: '获取区域详情', description: '根据ID获取区域详细信息' })
