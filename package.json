@@ -107,7 +107,7 @@
     "socket.io": "^4.8.0",
     "stacktrace-js": "^2.0.2",
     "svg-captcha": "^1.4.0",
-    "systeminformation": "^5.23.5",
+    "systeminformation": "^5.27.14",
     "ts-node": "^10.9.2",
     "typeorm": "0.3.17",
     "ua-parser-js": "^1.0.39",
